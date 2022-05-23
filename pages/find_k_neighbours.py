@@ -4,12 +4,20 @@ from skimage.transform import resize
 import skimage.io
 import numpy as np
 import pandas as pd
-import pickle
 import joblib
+from google.cloud import storage
+import os
 
 
-knnfile = "models/knnmodel.joblib"
-knn = joblib.load(knnfile)
+def download_model(bucket="gandywarhol-yh"):
+    client = storage.Client().bucket(bucket)
+    blob = client.blob('knnmodel.joblib')
+    blob.download_to_filename('models/knnmodel.joblib')
+    knn = joblib.load('models/knnmodel.joblib')
+    os.remove('models/knnmodel.joblib')
+    return knn
+
+knn = download_model()
 vgg = "models/vgg19_autoencoder.h5"
 vggmodel = load_model(vgg)
 vggmodel.compile()
